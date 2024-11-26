@@ -292,18 +292,19 @@ def delete_board(board_id):
             return jsonify({"message": "게시글을 찾을 수 없습니다."}), 404
 
         # 게시글에 연결된 파일 삭제
-        file_query = "SELECT filePath FROM File WHERE board_id = %s"
+        file_query = "SELECT filePath FROM File WHERE board_id = %s" or []
         cursor.execute(file_query, (board_id,))
         files = cursor.fetchall()
 
         for file in files:
-            file_path = file["filePath"]
+            # file_path = file["filePath"]
+            file_path = file[0]
             if os.path.exists(file_path):
                 os.remove(file_path)  # 파일 삭제
 
         # 파일 데이터베이스에서 삭제
-        delete_files_query = "DELETE FROM File WHERE board_id = %s"
-        cursor.execute(delete_files_query, (board_id,))
+        # delete_files_query = "DELETE FROM File WHERE board_id = %s"
+        # cursor.execute(delete_files_query, (board_id,))
 
         # 게시글 삭제
         delete_board_query = "DELETE FROM Board WHERE board_id = %s"
