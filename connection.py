@@ -88,6 +88,7 @@ def get_board_list():
                 m.username AS writer 
             FROM Board b
             LEFT JOIN Member m ON b.member_id = m.id
+            ORDER BY b.board_id DESC
         """
 
         # 검색 조건 추가
@@ -114,7 +115,6 @@ def get_board_list():
         query = f"""
             {base_query}
             {where_clause}
-            ORDER BY b.createdDate DESC
             LIMIT %s OFFSET %s
         """
         cursor.execute(query, query_params + [size, offset])
@@ -213,11 +213,11 @@ def increment_view_count(board_id):
     try:
         cursor = db.cursor()
         
-        # 게시글 존재 여부 확인
-        check_query = "SELECT 1 FROM Board WHERE board_id = %s"
-        cursor.execute(check_query, (board_id,))
-        if cursor.fetchone() is None:
-            return jsonify({"message": "게시글을 찾을 수 없습니다."}), 404
+        # # 게시글 존재 여부 확인
+        # check_query = "SELECT 1 FROM Board WHERE board_id = %s"
+        # cursor.execute(check_query, (board_id,))
+        # if cursor.fetchone() is None:
+        #     return jsonify({"message": "게시글을 찾을 수 없습니다."}), 404
         
         # 조회수 증가 처리
         update_query = "UPDATE Board SET viewCount = viewCount + 1 WHERE board_id = %s"
@@ -280,6 +280,7 @@ def get_board_detail(board_id):
 # 게시글 삭제하는 API
 @app.route('/board/<int:board_id>', methods=['DELETE'])
 def delete_board(board_id):
+    cursor = None
     try:
         cursor = db.cursor()
 
@@ -360,6 +361,7 @@ def update_board(board_id):
 # 댓글 목록 가져오기 API
 @app.route('/board/<int:board_id>/comment/list', methods=['GET'])
 def get_comment_list(board_id):
+    cursor = None
     try:
         # 페이지 번호와 크기 가져오기 (기본값: 페이지 번호 0, 크기 5)
         page = int(request.args.get('page', 0))
@@ -371,7 +373,7 @@ def get_comment_list(board_id):
         # 댓글 목록 조회 쿼리
         query = """
             SELECT 
-                c.comment_id AS id,
+                c.comment_id AS commentId,
                 c.content,
                 c.createdDate,
                 c.modifiedDate,
@@ -460,12 +462,13 @@ def update_comment(board_id, comment_id):
         if not comment:
             return jsonify({"message": "댓글을 찾을 수 없습니다."}), 404
 
-        if comment["user_id"] != user_email:
-            return jsonify({"message": "댓글 수정 권한이 없습니다."}), 403
+        # if comment["user_id"] != user_email:
+        #     return jsonify({"message": "댓글 수정 권한이 없습니다."}), 403
 
         # 댓글 수정
-        query = "UPDATE Comment SET content = %s, modifiedDate = NOW() WHERE comment_id = %s"
-        cursor.execute(query, (content, comment_id))
+        modified_time = datetime.now().strftime('%Y-%m-%d')
+        query = "UPDATE Comment SET content = %s, modifiedDate = %s WHERE comment_id = %s"
+        cursor.execute(query, (content, modified_time, comment_id))
         db.commit()
 
         return jsonify({"message": "댓글이 성공적으로 수정되었습니다."}), 200
@@ -486,14 +489,14 @@ def delete_comment(board_id, comment_id):
     cursor = db.cursor(dictionary=True)
     try:
         # 댓글 작성자 확인
-        cursor.execute("SELECT commentWriterName FROM Comment WHERE comment_id = %s", (comment_id,))
+        cursor.execute("SELECT user_id FROM Comment WHERE comment_id = %s", (comment_id,))
         comment = cursor.fetchone()
 
         if not comment:
             return jsonify({"message": "댓글을 찾을 수 없습니다."}), 404
 
-        if comment["commentWriterName"] != user_email:
-            return jsonify({"message": "댓글 삭제 권한이 없습니다."}), 403
+        # if comment["commentWriterName"] != user_email:
+        #     return jsonify({"message": "댓글 삭제 권한이 없습니다."}), 403
 
         # 댓글 삭제
         query = "DELETE FROM Comment WHERE comment_id = %s"
@@ -612,6 +615,6 @@ def delete_file(board_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
 
     
