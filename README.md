@@ -13,20 +13,23 @@
 
 ## 기술 스택
 ### Frontend
-- React
-- React Scripts
+![Skill Stack FrontEnd](images/skill_front.PNG)
 
 ### Backend
-- Python (Flask 기반)
-- MySQL
+![Skill Stack BackEnd](images/skill_back.PNG)
 
 ## ERD (Entity-Relationship Diagram)
+![ERD](images/ERD.PNG)
 - **Member → Board**: 한 회원이 여러 게시글을 작성 (1:N)
 - **Member → Comment**: 한 회원이 여러 댓글을 작성 (1:N)
 - **Board → Comment**: 한 게시글에 여러 댓글이 작성 (1:N)
 - **Board → File**: 한 게시글에 여러 파일이 첨부 (1:N)
 
+## Database
+![DB](images/DB.PNG)
+
 ## 설치 및 실행 방법
+![compile_method](images/compile_method.PNG)
 ### Backend 실행
 ```bash
 python Connection.py
@@ -39,3 +42,16 @@ npm install react-scripts --save
 npm start
 ```
 _(Git Bash 사용 추천)_
+
+## 구현 화면
+![page1](images/page1.PNG)
+![page2](images/page2.PNG)
+![page3](images/page3.PNG)
+![page4](images/page4.PNG)
+![page5](images/page5.PNG)
+![page6](images/page6.PNG)
+![page7](images/page7.PNG)
+![page8](images/page8.PNG)
+![page9](images/page9.PNG)
+![page10](images/page10.PNG)
+![page11](images/page11.PNG)
